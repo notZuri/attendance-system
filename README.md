@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/images/capslogo.png" alt="Attendance System Logo" width="200" height="auto">
+</div>
+
 # 🎓 Smart Attendance System - Real-Time RFID & Fingerprint Attendance 🕒
 
 A modern, responsive web application for automated attendance using RFID and fingerprint hardware. Built with PHP, MySQL, JavaScript (ES6+), and a native WebSocket server, this system demonstrates advanced full-stack and IoT integration skills, including real-time hardware communication, and a session-based enrollment.
@@ -24,6 +28,23 @@ A modern, responsive web application for automated attendance using RFID and fin
   - Role-based access, input validation, prepared statements, and secure session management.
 - **Live Dashboard:**
   - Professors see real-time attendance updates and hardware status.
+
+---
+
+## 🆕 Final UI/UX Improvements
+
+- **Attendance Table:**
+  - Unified table with all students, dropdown status selection (Present, Late, Absent, Unmarked).
+  - Color-coded badges, sticky header, zebra striping, and tooltips for clarity.
+  - Bulk edit mode for fast status changes.
+- **Search Bars:**
+  - Modern search bars with icons, clear (×) buttons, and improved accessibility on schedule and attendance pages.
+- **Hardware Status:**
+  - Real-time device status, auto-refresh, and clear emoji device icons.
+- **Accessibility:**
+  - ARIA labels, keyboard navigation, and enhanced focus states for all interactive elements.
+- **Visual Polish:**
+  - Consistent, responsive, and touch-friendly design across all pages.
 
 ---
 

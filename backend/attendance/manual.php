@@ -53,24 +53,24 @@ try {
                     $stmt->execute([':id' => $existing['id']]);
                 }
             } elseif (in_array($status, ['present','late','absent'])) {
-                if ($existing) {
-                    // Update
-                    $stmt = $pdo->prepare("UPDATE attendance SET status = :status, time_in = :time_in WHERE id = :id");
-                    $stmt->execute([
-                        ':status' => $status,
-                        ':time_in' => $time_in ?? date('H:i:s'),
-                        ':id' => $existing['id']
-                    ]);
-                } else {
-                    // Insert
-                    $stmt = $pdo->prepare("INSERT INTO attendance (user_id, schedule_id, attendance_date, status, time_in) VALUES (:user_id, :schedule_id, :date, :status, :time_in)");
-                    $stmt->execute([
-                        ':user_id' => $student_id,
-                        ':schedule_id' => $schedule_id,
-                        ':date' => $date,
-                        ':status' => $status,
-                        ':time_in' => $time_in ?? date('H:i:s')
-                    ]);
+            if ($existing) {
+                // Update
+                $stmt = $pdo->prepare("UPDATE attendance SET status = :status, time_in = :time_in WHERE id = :id");
+                $stmt->execute([
+                    ':status' => $status,
+                    ':time_in' => $time_in ?? date('H:i:s'),
+                    ':id' => $existing['id']
+                ]);
+            } else {
+                // Insert
+                $stmt = $pdo->prepare("INSERT INTO attendance (user_id, schedule_id, attendance_date, status, time_in) VALUES (:user_id, :schedule_id, :date, :status, :time_in)");
+                $stmt->execute([
+                    ':user_id' => $student_id,
+                    ':schedule_id' => $schedule_id,
+                    ':date' => $date,
+                    ':status' => $status,
+                    ':time_in' => $time_in ?? date('H:i:s')
+                ]);
                 }
             } else {
                 $failed[] = $student_id;

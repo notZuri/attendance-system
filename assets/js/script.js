@@ -345,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const formData = new FormData(editForm);
 
       try {
-        const response = await fetch('/attendance-system/backend/edit_student.php', {
+        const response = await fetch('/attendance-system/backend/student/update_student.php', {
           method: 'POST',
           body: formData
         });
@@ -1975,11 +1975,11 @@ class HardwareStatusManager {
     async loadHardwareStatus() {
         if (this.isUpdating) return;
         this.isUpdating = true;
-        
+        const refreshBtn = document.getElementById('refresh-hardware');
+        if (refreshBtn) refreshBtn.disabled = true;
         try {
             const response = await fetch('/attendance-system/backend/hardware/status.php');
             const data = await response.json();
-            
             if (data.success) {
                 this.updateDisplay(data.data);
             } else {
@@ -1990,6 +1990,7 @@ class HardwareStatusManager {
             this.showError('Network error loading hardware status');
         } finally {
             this.isUpdating = false;
+            if (refreshBtn) refreshBtn.disabled = false;
         }
     }
     
@@ -2090,13 +2091,13 @@ class HardwareStatusManager {
     getDeviceIcon(deviceType) {
         switch (deviceType.toLowerCase()) {
             case 'rfid':
-                return ' [32m💳 [0m';
+                return '💳';
             case 'fingerprint':
-                return ' [32m👆 [0m';
+                return '👆';
             case 'combined':
-                return ' [32m🔌 [0m';
+                return '🔌';
             default:
-                return ' [32m📱 [0m';
+                return '��';
         }
     }
     

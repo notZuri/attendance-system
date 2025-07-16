@@ -18,7 +18,6 @@ $phone = $_SESSION['phone'] ?? "123-456-7890";
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Professor - Attendance Monitoring</title>
   <link rel="stylesheet" href="/attendance-system/assets/css/style.css" />
-  <script src="/attendance-system/assets/js/script.js" defer></script>
 </head>
 <body class="dashboard-bg">
   <?php include "../../includes/header.php"; ?>

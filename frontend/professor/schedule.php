@@ -27,12 +27,20 @@ $professorId = $_SESSION['user_id'];
         </div>
       </div>
       <!-- Enhanced Search Bar for Class Schedule -->
-      <form id="schedule-search-form" class="search-bar page-section" aria-label="Search class schedules">
-        <input type="text" id="schedule-search" class="custom-search-input" placeholder="Search by subject or room..." aria-label="Search by subject or room" />
-        <button type="submit" class="btn btn-primary search-btn" aria-label="Search">
+      <form id="schedule-search-form" class="search-bar page-section" aria-label="Search class schedules" autocomplete="off" role="search">
+        <div class="search-input-wrapper" style="position:relative; flex:1; display:flex; align-items:center;">
+          <span class="search-input-icon" aria-hidden="true" style="position:absolute; left:14px; color:#b3d1f7; font-size:1.1em; pointer-events:none;">
+            <i class="fa fa-search"></i>
+          </span>
+          <input type="text" id="schedule-search" class="custom-search-input" placeholder="Search by subject or room..." aria-label="Search by subject or room" style="padding-left:2.2em;" />
+          <button type="button" id="clear-schedule-search" class="clear-search-btn" aria-label="Clear search" style="display:none; position:absolute; right:10px; background:none; border:none; color:#aaa; font-size:1.2em; cursor:pointer;">
+            &times;
+          </button>
+        </div>
+        <button type="submit" class="btn btn-primary search-btn" aria-label="Search" style="margin-left:0.5em;">
           <span class="fa fa-search" aria-hidden="true"></span> Search
         </button>
-        <button type="button" id="schedule-show-all" class="btn btn-secondary" aria-label="Show all schedules">Show All</button>
+        <button type="button" id="schedule-show-all" class="btn btn-secondary" aria-label="Show all schedules" style="margin-left:0.5em;">Show All</button>
       </form>
       <!-- Schedule Form and Table Section -->
       <section class="page-section">
@@ -162,6 +170,20 @@ $professorId = $_SESSION['user_id'];
         modal.style.display = 'none';
       }
     });
+    // Enhanced search bar clear button logic
+    const searchInput = document.getElementById('schedule-search');
+    const clearBtn = document.getElementById('clear-schedule-search');
+    if (searchInput && clearBtn) {
+      searchInput.addEventListener('input', function() {
+        clearBtn.style.display = this.value.length > 0 ? 'block' : 'none';
+      });
+      clearBtn.addEventListener('click', function() {
+        searchInput.value = '';
+        clearBtn.style.display = 'none';
+        searchInput.focus();
+        // Optionally trigger search reset here
+      });
+    }
   });
   </script>
 </body>

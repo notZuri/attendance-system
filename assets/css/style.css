@@ -5603,3 +5603,79 @@ input:focus, select:focus {
     width: 34px;
   }
 }
+
+/* --- Enhanced Schedule Search Bar --- */
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.search-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #b3d1f7;
+  font-size: 1.1em;
+  pointer-events: none;
+  z-index: 2;
+}
+.custom-search-input {
+  flex: 1;
+  padding: 0.6rem 2.2em 0.6rem 2.2em;
+  border-radius: 24px;
+  border: 1px solid #b3d1f7;
+  background: #f8fbff;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: none;
+}
+.custom-search-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px #b3d1f733;
+}
+.clear-search-btn {
+  display: none;
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.2em;
+  cursor: pointer;
+  z-index: 3;
+  padding: 0 0.3em;
+  height: 100%;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.clear-search-btn:focus,
+.clear-search-btn:hover {
+  color: #e74c3c;
+  background: #f8eaea;
+  border-radius: 50%;
+}
+@media (max-width: 700px) {
+  .search-input-wrapper {
+    width: 100%;
+  }
+  .custom-search-input {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Fix for schedule page search bar container */
+.schedule-header .search-bar,
+.page-section .search-bar {
+  max-width: 100%;
+  width: 100%;
+  flex: 1;
+  box-sizing: border-box;
+}
+.schedule-header .custom-search-input,
+.page-section .custom-search-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}

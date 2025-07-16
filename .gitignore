@@ -1,0 +1,79 @@
+# Configuration files with sensitive data
+backend/config/config.local.php
+.env
+.env.local
+.env.production
+
+# Hardware/Arduino files with sensitive credentials
+hardware/esp32_attendance_enhanced.ino
+hardware/*.ino.bak
+hardware/build/
+hardware/.pio/
+
+# Test and development files
+test_*.php
+*_test.php
+check_*.php
+*_migration.php
+run_*.php
+
+# Development tools and IDE files
+.cursor/
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Log files
+logs/*.log
+*.log
+
+# Uploaded files
+uploads/*
+!uploads/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Cache files
+cache/
+*.cache
+
+# Node modules (if using any build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build files
+dist/
+build/
+
+# Database dumps (unless specifically needed)
+*.sql
+!sql/attendance_system.sql
+
+# Session files
+sessions/
+
+# Error logs
+error_log
+access_log 

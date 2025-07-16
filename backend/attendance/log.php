@@ -7,20 +7,20 @@ require_once __DIR__ . '/../auth/auth_helpers.php';
 
 session_start();
 
-if (!isUserLoggedIn() || !userHasRole(['professor', 'student'])) {
-    sendJsonResponse(401, ['error' => 'Unauthorized']);
+if (!is_logged_in() || !user_has_role(['professor', 'student'])) {
+    send_json_response(401, ['error' => 'Unauthorized']);
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    sendJsonResponse(405, ['error' => 'Method Not Allowed']);
+    send_json_response(405, ['error' => 'Method Not Allowed']);
     exit;
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (empty($input['user_id']) || empty($input['method']) || empty($input['scan_value'])) {
-    sendJsonResponse(400, ['error' => 'Missing required fields']);
+    send_json_response(400, ['error' => 'Missing required fields']);
     exit;
 }
 
@@ -29,7 +29,7 @@ $method = trim($input['method']);          // 'rfid' or 'fingerprint'
 $scanValue = trim($input['scan_value']);
 
 if (!in_array($method, ['rfid', 'fingerprint'], true)) {
-    sendJsonResponse(400, ['error' => 'Invalid attendance method']);
+    send_json_response(400, ['error' => 'Invalid attendance method']);
     exit;
 }
 
@@ -38,7 +38,7 @@ try {
     $stmt = $pdo->prepare("SELECT id FROM users WHERE id = :user_id AND {$method}_id = :scan_value LIMIT 1");
     $stmt->execute([':user_id' => $userId, ':scan_value' => $scanValue]);
     if (!$stmt->fetch()) {
-        sendJsonResponse(403, ['error' => 'Scan value does not match user']);
+        send_json_response(403, ['error' => 'Scan value does not match user']);
         exit;
     }
 
@@ -50,10 +50,8 @@ try {
         ':scan_value' => $scanValue,
     ]);
 
-    // TODO: Trigger asynchronous Gmail notification here
-
-    sendJsonResponse(201, ['message' => 'Attendance logged successfully']);
+    send_json_response(201, ['message' => 'Attendance logged successfully']);
 } catch (PDOException $e) {
     error_log('Attendance log error: ' . $e->getMessage());
-    sendJsonResponse(500, ['error' => 'Internal server error']);
+    send_json_response(500, ['error' => 'Internal server error']);
 }

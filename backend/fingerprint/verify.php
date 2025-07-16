@@ -10,7 +10,7 @@ require_once __DIR__ . '/../utils/response.php';
 $input = json_decode(file_get_contents('php://input'), true);
 
 if (!isset($input['fingerprint_hash'])) {
-    sendJsonResponse(400, ['error' => 'Fingerprint data missing']);
+    send_json_response(400, ['error' => 'Fingerprint data missing']);
 }
 
 $fingerprintHash = trim($input['fingerprint_hash']);
@@ -18,17 +18,17 @@ $fingerprintHash = trim($input['fingerprint_hash']);
 try {
     $studentId = getStudentIdByFingerprint($pdo, $fingerprintHash);
     if ($studentId === null) {
-        sendJsonResponse(404, ['error' => 'Fingerprint not recognized']);
+        send_json_response(404, ['error' => 'Fingerprint not recognized']);
     }
 
     // Log attendance
     $result = logAttendance($pdo, $studentId, 'fingerprint');
 
     if ($result) {
-        sendJsonResponse(200, ['message' => 'Attendance logged successfully']);
+        send_json_response(200, ['message' => 'Attendance logged successfully']);
     } else {
-        sendJsonResponse(500, ['error' => 'Failed to log attendance']);
+        send_json_response(500, ['error' => 'Failed to log attendance']);
     }
 } catch (PDOException $e) {
-    sendJsonResponse(500, ['error' => 'Server error: ' . $e->getMessage()]);
+    send_json_response(500, ['error' => 'Server error: ' . $e->getMessage()]);
 }

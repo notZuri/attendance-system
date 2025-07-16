@@ -13,9 +13,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $email = clean_email($_POST['email'] ?? '');
 $password = $_POST['password'] ?? '';
+$selectedRole = $_POST['role'] ?? '';
 
-if (empty($email) || empty($password)) {
-    echo json_encode(['error' => 'Email and password are required']);
+if (empty($email) || empty($password) || empty($selectedRole)) {
+    echo json_encode(['error' => 'Email, password, and role are required']);
+    exit;
+}
+
+// Validate role selection
+if (!in_array($selectedRole, ['professor', 'student'])) {
+    echo json_encode(['error' => 'Please select a valid role']);
     exit;
 }
 
@@ -29,10 +36,16 @@ try {
         exit;
     }
 
+    // Validate that the selected role matches the user's actual role
+    if ($user['role'] !== $selectedRole) {
+        echo json_encode(['error' => 'Invalid role selected. Please select the correct role for your account.']);
+        exit;
+    }
+
     // Start session and store user data
     $_SESSION['user_id'] = (int)$user['id'];
     $_SESSION['role'] = $user['role'];
-    $_SESSION['fullname'] = $user['name'];
+    $_SESSION['name'] = $user['name'];
 
     // Return success with RELATIVE redirect path
     echo json_encode([

@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'professor') {
-    header("Location: ../login.php");
+    header("Location: /attendance-system/index.php");
     exit();
 }
 
@@ -17,9 +17,10 @@ $dateFrom = htmlspecialchars($dateFrom);
 $dateTo = htmlspecialchars($dateTo);
 
 // Prepare SQL with correct column names from your attendance table
-$sql = "SELECT u.student_number, u.name, a.attendance_date, a.status 
+$sql = "SELECT u.student_number, u.name, a.attendance_date, a.status, s.subject 
         FROM attendance a
         JOIN users u ON a.user_id = u.id
+        JOIN schedules s ON a.schedule_id = s.id
         WHERE a.attendance_date BETWEEN ? AND ?
         ORDER BY a.attendance_date DESC, u.name ASC";
 
@@ -27,65 +28,105 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute([$dateFrom, $dateTo]);
 $result = $stmt->fetchAll();
 
-?>  
-
-<?php include __DIR__ . "/../../includes/header.php"; ?>
-<?php include __DIR__ . "/../../includes/sidebar.php"; ?>
-<link rel="stylesheet" href="/attendance-system/assets/css/style.css" />
-<main class="main-content">
-  <h2>Attendance Reports</h2>
-
-  <form method="GET" action="reports.php" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-    <label for="date_from">From:</label>
-    <input type="date" id="date_from" name="date_from" value="<?php echo $dateFrom; ?>" required>
-
-    <label for="date_to">To:</label>
-    <input type="date" id="date_to" name="date_to" value="<?php echo $dateTo; ?>" required>
-
-    <button type="submit" style="padding: 0.5rem 1rem; background-color: #007bff; border:none; color:#fff; border-radius: 4px; cursor:pointer;">
-      Filter
-    </button>
-  </form>
-
-  <div class="table-responsive" style="overflow-x:auto;">
-    <table style="width: 100%; border-collapse: collapse;">
-      <thead style="background-color: #007bff; color: #fff;">
-        <tr>
-          <th style="padding: 0.75rem; border: 1px solid #ddd;">Student Number</th>
-          <th style="padding: 0.75rem; border: 1px solid #ddd;">Name</th>
-          <th style="padding: 0.75rem; border: 1px solid #ddd;">Date</th>
-          <th style="padding: 0.75rem; border: 1px solid #ddd;">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php if (count($result) > 0): ?>
-          <?php foreach ($result as $row): ?>
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Attendance Reports - Attendance System</title>
+  <link rel="stylesheet" href="/attendance-system/assets/css/style.css" />
+</head>
+<body class="dashboard-bg">
+  <?php include "../../includes/header.php"; ?>
+  <div class="layout">
+    <?php include "../../includes/sidebar.php"; ?>
+    <main class="main-content">
+      <h2>Attendance Reports</h2>
+      <form method="GET" action="reports.php" class="card" style="display: flex; gap: 1rem; align-items: center; max-width: 600px; margin-bottom: 1.5rem;">
+        <label for="date_from">From:</label>
+        <input type="date" id="date_from" name="date_from" value="<?php echo $dateFrom; ?>" required>
+        <label for="date_to">To:</label>
+        <input type="date" id="date_to" name="date_to" value="<?php echo $dateTo; ?>" required>
+        <button type="submit" class="btn btn-primary">🔍 Filter</button>
+      </form>
+      <div style="margin-bottom: 1rem; display: flex; gap: 0.5rem;">
+        <button id="export-csv" class="btn btn-secondary" type="button">Export CSV</button>
+        <button id="print-report" class="btn btn-secondary" type="button">Print</button>
+      </div>
+      <div id="print-area" class="table-responsive">
+        <table class="attendance-table">
+          <thead>
             <tr>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;"><?php echo htmlspecialchars($row['student_number']); ?></td>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;"><?php echo htmlspecialchars($row['name']); ?></td>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;"><?php echo htmlspecialchars($row['attendance_date']); ?></td>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;">
-                <?php 
-                  $status = $row['status'];
-                  if ($status === 'present') {
-                    echo "<span style='color:green; font-weight:bold;'>Present</span>";
-                  } elseif ($status === 'late') {
-                    echo "<span style='color:orange; font-weight:bold;'>Late</span>";
-                  } else {
-                    echo "<span style='color:red; font-weight:bold;'>Absent</span>";
-                  }
-                ?>
-              </td>
+              <th>Student Number</th>
+              <th>Name</th>
+              <th>Subject</th>
+              <th>Date</th>
+              <th>Status</th>
             </tr>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <tr>
-            <td colspan="4" style="text-align:center; padding: 1rem;">No attendance records found for this period.</td>
-          </tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
+          </thead>
+          <tbody>
+            <?php if (count($result) > 0): ?>
+              <?php foreach ($result as $row): ?>
+                <tr>
+                  <td><?php echo htmlspecialchars($row['student_number']); ?></td>
+                  <td><?php echo htmlspecialchars($row['name']); ?></td>
+                  <td><?php echo htmlspecialchars($row['subject']); ?></td>
+                  <td><?php echo htmlspecialchars(date('M j, Y', strtotime($row['attendance_date']))); ?></td>
+                  <td>
+                    <?php 
+                      $status = $row['status'];
+                      if ($status === 'present') {
+                        echo "<span class='status-present'>Present</span>";
+                      } elseif ($status === 'late') {
+                        echo "<span class='status-late'>Late</span>";
+                      } else {
+                        echo "<span class='status-absent'>Absent</span>";
+                      }
+                    ?>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php else: ?>
+              <tr>
+                <td colspan="4" style="text-align:center; padding: 1rem;">No attendance records found for this period.</td>
+              </tr>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
+    </main>
   </div>
-</main>
-
-<?php include __DIR__ . "/../../includes/footer.php"; ?>
+  <?php include "../../includes/footer.php"; ?>
+  <script>
+  // CSV Export
+  function downloadCSV(csv, filename) {
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  function exportTableToCSV(tableClass, filename) {
+    const table = document.querySelector('.' + tableClass);
+    let csv = [];
+    for (let row of table.rows) {
+      let rowData = [];
+      for (let cell of row.cells) {
+        rowData.push('"' + cell.innerText.replace(/"/g, '""') + '"');
+      }
+      csv.push(rowData.join(','));
+    }
+    downloadCSV(csv.join('\n'), filename);
+  }
+  document.getElementById('export-csv').addEventListener('click', function() {
+    exportTableToCSV('attendance-table', 'attendance_report.csv');
+  });
+  // Print
+  document.getElementById('print-report').addEventListener('click', function() {
+    window.print();
+  });
+  </script>
+</body>
+</html>

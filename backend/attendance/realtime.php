@@ -7,8 +7,8 @@ require_once __DIR__ . '/../auth/auth_helpers.php';
 
 session_start();
 
-if (!isUserLoggedIn() || !userHasRole(['professor'])) {
-    sendJsonResponse(401, ['error' => 'Unauthorized']);
+if (!is_logged_in() || !user_has_role(['professor'])) {
+    send_json_response(401, ['error' => 'Unauthorized']);
     exit;
 }
 
@@ -23,8 +23,8 @@ try {
     $stmt->execute();
     $records = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    sendJsonResponse(200, ['attendance' => $records]);
+    send_json_response(200, ['attendance' => $records]);
 } catch (PDOException $e) {
     error_log('Realtime attendance fetch error: ' . $e->getMessage());
-    sendJsonResponse(500, ['error' => 'Internal server error']);
+    send_json_response(500, ['error' => 'Internal server error']);
 }

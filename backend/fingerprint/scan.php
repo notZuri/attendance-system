@@ -1,41 +1,45 @@
 <?php
 header('Content-Type: application/json');
-include '../../attendance_system.php';
+session_start();
+require_once __DIR__ . '/../config/config.php';
 
 $data = json_decode(file_get_contents('php://input'), true);
-
 $session_id = $data['session_id'] ?? null;
-$scanned_id = $data['scanned_id'] ?? null;
+$template_id = $data['scanned_id'] ?? null;
+$template_data = $data['template_data'] ?? null; // Optional, for future use
 
-if (!$session_id || !$scanned_id) {
+if (!$session_id || !$template_id) {
     http_response_code(400);
     echo json_encode(['error' => 'Invalid input']);
     exit;
 }
 
-$stmt = $conn->prepare("UPDATE enrollment_sessions SET scanned_id = ?, status = 'success' WHERE session_id = ? AND status = 'waiting'");
-$stmt->bind_param("si", $scanned_id, $session_id);
-$stmt->execute();
-
-if ($stmt->affected_rows > 0) {
-    $stmt2 = $conn->prepare("SELECT student_id FROM enrollment_sessions WHERE session_id = ?");
-    $stmt2->bind_param("i", $session_id);
-    $stmt2->execute();
-    $result = $stmt2->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $student_id = $row['student_id'];
-        $stmt3 = $conn->prepare("UPDATE students SET fingerprint_id = ? WHERE student_id = ?");
-        $stmt3->bind_param("si", $scanned_id, $student_id);
-        $stmt3->execute();
-        $stmt3->close();
+try {
+    // Get session and user
+    $stmt = $pdo->prepare('SELECT * FROM enrollment_sessions WHERE id = ? AND type = "fingerprint" AND status = "waiting"');
+    $stmt->execute([$session_id]);
+    $session = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$session) {
+        http_response_code(404);
+        echo json_encode(['error' => 'Fingerprint enrollment session not found or already completed']);
+        exit;
     }
-    $stmt2->close();
-
+    $user_id = $session['user_id'];
+    // Prevent duplicate template_id
+    $check = $pdo->prepare('SELECT id FROM fingerprint_templates WHERE template_id = ?');
+    $check->execute([$template_id]);
+    if ($check->fetch()) {
+        $pdo->prepare('UPDATE enrollment_sessions SET status = "error", scanned_id = ? WHERE id = ?')->execute([$template_id, $session_id]);
+        echo json_encode(['error' => 'Fingerprint already enrolled.']);
+        exit;
+    }
+    // Insert into fingerprint_templates
+    $insert = $pdo->prepare('INSERT INTO fingerprint_templates (user_id, template_id, template_data) VALUES (?, ?, ?)');
+    $insert->execute([$user_id, $template_id, $template_data ?? '']);
+    // Update session
+    $pdo->prepare('UPDATE enrollment_sessions SET scanned_id = ?, status = "success", completed_at = NOW() WHERE id = ?')->execute([$template_id, $session_id]);
     echo json_encode(['success' => true]);
-} else {
-    http_response_code(404);
-    echo json_encode(['error' => 'Fingerprint enrollment session not found or already completed']);
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Server error: ' . $e->getMessage()]);
 }
-
-$stmt->close();
-$conn->close();

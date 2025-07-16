@@ -25,6 +25,28 @@ function get_user_role(): ?string {
 }
 
 /**
+ * Check if user has at least one of the allowed roles
+ */
+function user_has_role(array $allowed_roles): bool {
+    return isset($_SESSION['role']) && in_array($_SESSION['role'], $allowed_roles, true);
+}
+
+/**
+ * Securely log out the user and destroy the session
+ */
+function logout_user(): void {
+    $_SESSION = [];
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000,
+            $params["path"], $params["domain"],
+            $params["secure"], $params["httponly"]
+        );
+    }
+    session_destroy();
+}
+
+/**
  * Require login or redirect to login page
  */
 function require_login(): void {

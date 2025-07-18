@@ -6,7 +6,7 @@
 
 A modern, responsive web application for automated attendance using RFID and fingerprint hardware. This system features real-time hardware communication, session-based enrollment, and a polished, accessible UI/UX for both professors and students.
 
-📍 **Live Demo**: [Local Development Required]  
+📍 **Live Demo**: [http://zuri.mygamesonline.org/]  
 🛠️ **Tech Stack**: PHP 7.4+, MySQL 5.7+, HTML5, CSS3, JavaScript (ES6+), WebSocket, ESP32  
 🎯 **Focus**: Hardware integration, real-time data, responsive design, secure and scalable architecture
 
